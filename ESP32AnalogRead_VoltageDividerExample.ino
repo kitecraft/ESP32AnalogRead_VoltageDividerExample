@@ -107,34 +107,19 @@ void loop()
 {
   uint32_t adc_reading = 0;
   
-  //Multisampling creates more 'accurate' readings
-  // adc1_get_raw() is how we actually get a value 
-  // from a pin on ADC1.  
-  // It's kinda like arduinos analogRead() function.
-  // Oddly though, getting a value from ADC2 
-  // uses a different function all together.
   for (int i = 0; i < NO_OF_SAMPLES; i++) {
-    adc_reading += adc1_get_raw((adc1_channel_t)channel);
+    adc_reading += adc1_get_raw(channel);
   }
   
   adc_reading /= NO_OF_SAMPLES;
-  //adc_reading -= 20;  // adjust this number to fine-tune the readings.
-
-  //Use the ESP2 magic function to map the 'analog' value read
-  //to an actually usefull voltage value.
   uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_characteristics);
 
-  // Since the ADC's can't measure down (or close to)
-  // zero, we assume anything below this thresehold
-  // IS zero.
   if(adc_reading < 65)
   {
     voltage = 0;
   }
 
-  //Printing uint32_t types is weird
   Serial.printf("Raw: %.3d \tVoltage: %.3d mV\n", adc_reading, voltage);
-  
   
   double inVoltage = ((double)voltage * MULTIPLIER)/1000.0;
   Serial.print("Input voltage: ");
